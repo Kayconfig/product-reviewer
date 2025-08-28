@@ -1,5 +1,8 @@
-export interface Message {
-    content: string;
-}
+import type { BaseMessage } from '@langchain/core/messages';
 
-export type Messages = Message[];
+export type Message = {
+    id: string;
+    content: string;
+};
+
+export type Messages = BaseMessage[];

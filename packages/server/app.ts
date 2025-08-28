@@ -6,13 +6,20 @@ import express, {
     type Response,
 } from 'express';
 import morgan from 'morgan';
+import { chatRouter } from './chat/chat.router';
 
 export const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const isProd = process.env.NODE_ENV === 'production';
 
 /* set middleware */
 app.use(morgan(isProd ? 'tiny' : 'dev'));
+
+/* set routes */
+app.use('/api/v1/chat', chatRouter);
 
 /* unhandled routes */
 app.use('/', (req, res) => {
@@ -28,7 +35,7 @@ app.use('/', (req, res) => {
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err);
     res.status(HttpStatusCode.InternalServerError).json({
-        statusCode: HttpStatusCode,
+        statusCode: HttpStatusCode.InternalServerError,
         message: 'Unable to process request, please try again later.',
         data: null,
         errors: [],

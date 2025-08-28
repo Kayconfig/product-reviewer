@@ -1,7 +1,9 @@
 type Role = 'user' | 'bot';
-type Message = {
+export type Message = {
+    id: string;
     content: string;
     role: Role;
+    complete: boolean;
 };
 export type Messages = Message[];
 
@@ -19,7 +21,7 @@ export default function MessagesList({ messages }: Prop) {
         <div className="w-full h-full p-2 flex flex-col gap-2">
             {messages.map(({ content, role }, idx) => (
                 <p
-                    className={`p-2 rounded-2xl ${getStylingForRole(role)}`}
+                    className={`p-2 rounded-2xl w-max-2 ${getStylingForRole(role)}`}
                     key={idx}
                 >
                     {content}

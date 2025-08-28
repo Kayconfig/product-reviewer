@@ -8,4 +8,9 @@ export type Chat = {
 export interface ChatRepository {
     createChat(userId: string): Promise<Chat>;
     getChat(userId: string, chatId: string): Promise<Chat | null>;
+    appendChatMessages(
+        userId: string,
+        chatId: string,
+        ...messages: Messages
+    ): Promise<void>;
 }

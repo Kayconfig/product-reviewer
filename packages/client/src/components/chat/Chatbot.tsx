@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import ChatInput, { type Chat } from './ChatInput';
-import MessagesList, { type Messages } from './MessageList';
+import MessagesList, { type Message, type Messages } from './MessageList';
 import TypingIndicator from './TypingIndicator';
 import axios, { AxiosError } from 'axios';
 import { UNEXPECTED_ERR_MSG } from '@/lib/error-msgs';
-import { apiSuccessChatResponseSchema } from './api-chat-response-schema';
 
 type ApiResponse = {
     statusCode: number;
@@ -17,7 +16,27 @@ export default function ChatBot() {
     const [messages, setMessages] = useState<Messages>([]);
     const [botIsTyping, setBotIsTyping] = useState(false);
     const [errMsg, setErrMsg] = useState('');
-    const [chatId, setChatId] = useState('testChatId');
+    const [chatId, setChatId] = useState('');
+    const [pageLoading, setPageLoading] = useState(true);
+    const [pageLoadError, setPageLoadError] = useState(false);
+    const lastMsgRef = useRef<Message | null>(null);
+
+    const userIdRef = useRef(crypto.randomUUID());
+
+    useEffect(() => {
+        //create chat on server
+        axios
+            .post('/api/v1/chat', { userId: userIdRef.current })
+            .then((axiosResponse) => {
+                const chatId = axiosResponse.data.data.id;
+                if (!chatId) {
+                    setPageLoadError(true);
+                }
+                setChatId(chatId);
+            })
+            .catch((e) => setPageLoadError(true))
+            .finally(() => setPageLoading(false));
+    }, []);
 
     const sendPromptToLLM = async (data: Chat) => {
         if (!chatId) {
@@ -29,32 +48,31 @@ export default function ChatBot() {
             setBotIsTyping(true);
             setMessages((prev) => [
                 ...prev,
-                { role: 'user', content: data.prompt },
+                {
+                    id: crypto.randomUUID(),
+                    role: 'user',
+                    content: data.prompt,
+                    complete: true,
+                },
             ]);
-            const res = await new Promise<{ data: ApiResponse }>((res, rej) => {
-                setTimeout(
-                    () =>
-                        res({
-                            data: {
-                                statusCode: 200,
-                                message: 'response generated successfully',
-                                data: { message: 'Hello, how are you?' },
-                                errors: ['hello'],
-                            },
-                        }),
-                    5000
-                );
-            });
-            const parsedResponseData =
-                await apiSuccessChatResponseSchema.safeParseAsync(res.data);
-            if (!parsedResponseData.success) {
-                debugger;
-                setErrMsg(UNEXPECTED_ERR_MSG);
-                return;
-            }
-            const msg = parsedResponseData.data.data.message;
-            setMessages((prev) => [...prev, { role: 'bot', content: msg }]);
+            const { data: apiResponse } = await axios.post(
+                `/api/v1/chat/${chatId}`,
+                { prompt: data.prompt, userId: userIdRef.current }
+            );
+
+            const msg = apiResponse.data;
+
+            let aiResponse: Message = {
+                id: msg.id,
+                content: msg.content,
+                role: 'bot',
+                complete: true,
+            };
+
+            setMessages((prev) => [...prev, aiResponse]);
         } catch (e) {
+            debugger;
+
             if (e instanceof AxiosError) {
                 const apiResponse = e.response;
                 const statusCode = apiResponse?.status ?? 500;
@@ -69,6 +87,30 @@ export default function ChatBot() {
             setBotIsTyping(false);
         }
     };
+
+    const Center = ({ children }: { children: ReactNode }) => {
+        return (
+            <div className="flex items-center justify-center">{children}</div>
+        );
+    };
+
+    if (pageLoading) {
+        return (
+            <Center>
+                <p className="text-5xl"> Loading....</p>{' '}
+            </Center>
+        );
+    }
+
+    if (pageLoadError) {
+        return (
+            <Center>
+                <p>
+                    Unexpected error occurred, please reload or try again later.
+                </p>
+            </Center>
+        );
+    }
 
     return (
         <div className="w-full h-full">
