@@ -45,19 +45,16 @@ export const chatService = {
         if (!chat) throw ChatNotFoundError.create(chatId, userId);
         const chatHistory = chat.messages;
         const userMsg = createHumanMsg(prompt);
-        console.log('iterableReadable loading...');
         const iterableReadableStream = await llm.stream(
             chatHistory.concat(userMsg)
         );
-        console.log('iterableReadable done');
-        const msgId = randomUUID();
         const aiMsgChunkTransformer = new Transform({
             highWaterMark: 1,
             objectMode: true,
             transform: function (chunk: AIMessageChunk, encoding, cb) {
                 const { content } = chunk;
                 const msgToSend = {
-                    id: msgId,
+                    id: chunk.id,
                     content,
                     done: chunk?.response_metadata?.done ?? false,
                 };

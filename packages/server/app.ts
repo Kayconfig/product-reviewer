@@ -7,6 +7,7 @@ import express, {
 } from 'express';
 import morgan from 'morgan';
 import { chatRouter } from './chat/chat.router';
+import { productRouter } from './products/product.router';
 
 export const app = express();
 
@@ -20,6 +21,7 @@ app.use(morgan(isProd ? 'tiny' : 'dev'));
 
 /* set routes */
 app.use('/api/v1/chat', chatRouter);
+app.use('/api/v1/product', productRouter);
 
 /* unhandled routes */
 app.use('/', (req, res) => {

@@ -16,19 +16,20 @@ datasource db {
 
 
 model Product{
+  @@map("products")
   id Int @id @default(autoincrement())
-  name String
+  name String @db.VarChar(255)
   description String?
   price Float
   reviews Review[]
   summary Summary?
-
 }
 
 model Review {
+  @@map("reviews")
   id Int @id @default(autoincrement())
-  author String
-  rating Int
+  author String @db.VarChar(255)
+  rating Int @db.SmallInt
   content String
   createdAt DateTime @default(now())
   productId Int
@@ -36,6 +37,7 @@ model Review {
 }
 
 model Summary {
+  @@map("summaries")
   id Int @id @default(autoincrement())
   productId Int @unique
   product Product @relation(fields: [productId], references: [id])
