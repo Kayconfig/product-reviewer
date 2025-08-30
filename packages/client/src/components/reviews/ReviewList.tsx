@@ -72,13 +72,13 @@ export default function ReviewList() {
     const createSummary = async () => {
         const { data } = await axios.post<
             ApiResponse<CreateSummaryResponseData>
-        >(`/api/v1/product/${productId}/review/summary`);
+        >(`/api/v1/products/${productId}/review/summary`);
         return data.data.summary;
     };
 
     const fetchReviews = async () => {
         const { data } = await axios.get<ApiResponse<GetReviewsResponse>>(
-            `/api/v1/product/${productId}/review`
+            `/api/v1/products/${productId}/review`
         );
         return data.data;
     };

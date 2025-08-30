@@ -20,8 +20,8 @@ const isProd = process.env.NODE_ENV === 'production';
 app.use(morgan(isProd ? 'tiny' : 'dev'));
 
 /* set routes */
-app.use('/api/v1/chat', chatRouter);
-app.use('/api/v1/product', productRouter);
+app.use('/api/v1/chats', chatRouter);
+app.use('/api/v1/products', productRouter);
 
 /* unhandled routes */
 app.use('/', (req, res) => {

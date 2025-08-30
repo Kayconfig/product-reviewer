@@ -48,7 +48,7 @@ export default function ProductList() {
     const fetchProducts = async () => {
         const res =
             await axios.get<ApiResponse<GetProductsResponse>>(
-                '/api/v1/product'
+                '/api/v1/products'
             );
         return res.data.data.products;
     };

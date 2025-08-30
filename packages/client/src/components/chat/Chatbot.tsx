@@ -26,7 +26,7 @@ export default function ChatBot() {
     useEffect(() => {
         //create chat on server
         axios
-            .post('/api/v1/chat', { userId: userIdRef.current })
+            .post('/api/v1/chats', { userId: userIdRef.current })
             .then((axiosResponse) => {
                 const chatId = axiosResponse.data.data.id;
                 if (!chatId) {
@@ -56,7 +56,7 @@ export default function ChatBot() {
                 },
             ]);
             const { data: apiResponse } = await axios.post(
-                `/api/v1/chat/${chatId}`,
+                `/api/v1/chats/${chatId}`,
                 { prompt: data.prompt, userId: userIdRef.current }
             );
 
