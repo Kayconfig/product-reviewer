@@ -3,7 +3,9 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "dev": "bun --inspect run index.ts"
+        "dev": "bun --inspect run index.ts",
+        "test": "bun test --forceExit --runInBand",
+        "test:coverage": "bun test --coverage --forceExit"
     },
     "devDependencies": {
         "@types/bun": "latest",

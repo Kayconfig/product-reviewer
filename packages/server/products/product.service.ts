@@ -1,17 +1,31 @@
 import type { Product } from '../generated/prisma';
 import { ProductNotFoundError } from './errors/product-not-found.error';
-import { productRepository } from './product.repository';
+import {
+    productRepository,
+    type ProductRepository,
+} from './product.repository';
 
-export const productService = {
-    async findById(productId: number): Promise<Product> {
-        const product = await productRepository.findById(productId);
-        if (!product) {
-            throw ProductNotFoundError.create(productId);
-        }
-        return product;
-    },
+export interface ProductService {
+    findById(productId: number): Promise<Product>;
+    findAll(): Promise<Product[]>;
+}
 
-    async findAll(): Promise<Product[]> {
-        return await productRepository.findAll();
-    },
-};
+export function createProductService(
+    repository: ProductRepository
+): ProductService {
+    return {
+        async findById(productId: number): Promise<Product> {
+            const product = await repository.findById(productId);
+            if (!product) {
+                throw ProductNotFoundError.create(productId);
+            }
+            return product;
+        },
+
+        async findAll(): Promise<Product[]> {
+            return await repository.findAll();
+        },
+    };
+}
+
+export const productService = createProductService(productRepository);

@@ -1,65 +1,69 @@
 import { HttpStatusCode } from 'axios';
 import type { NextFunction, Request, Response } from 'express';
 import { ProductNotFoundError } from './errors/product-not-found.error';
-import { productService } from './product.service';
+import { productService, type ProductService } from './product.service';
 
-export const productController = {
-    async findAll(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-        try {
-            const products = await productService.findAll();
-            res.status(HttpStatusCode.Ok).json({
-                statusCode: HttpStatusCode.Ok,
-                message: products.length
-                    ? 'products fetched successfully'
-                    : 'no products found',
-                data: { products },
-                errors: [],
-            });
-        } catch (e) {
-            next(e);
-        }
-    },
-    async findById(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-        const productId = Number(req.params.id);
-        try {
-            if (isNaN(productId)) {
-                res.status(HttpStatusCode.BadRequest).json({
-                    statusCode: HttpStatusCode.BadRequest,
-                    message: `bad request: invalid productId in path params`,
-                    data: null,
-                    errors: [`'productId' should be a valid integer`],
+function initializeProductController(service: ProductService) {
+    return {
+        async findAll(
+            req: Request,
+            res: Response,
+            next: NextFunction
+        ): Promise<void> {
+            try {
+                const products = await service.findAll();
+                res.status(HttpStatusCode.Ok).json({
+                    statusCode: HttpStatusCode.Ok,
+                    message: products.length
+                        ? 'products fetched successfully'
+                        : 'no products found',
+                    data: { products },
+                    errors: [],
+                });
+            } catch (e) {
+                next(e);
+            }
+        },
+        async findById(
+            req: Request,
+            res: Response,
+            next: NextFunction
+        ): Promise<void> {
+            const productId = Number(req.params.id);
+            try {
+                if (isNaN(productId)) {
+                    res.status(HttpStatusCode.BadRequest).json({
+                        statusCode: HttpStatusCode.BadRequest,
+                        message: `bad request: invalid productId in path params`,
+                        data: null,
+                        errors: [`'productId' should be a valid integer`],
+                    });
+                    return;
+                }
+                const product = await service.findById(productId);
+
+                const statusCode = HttpStatusCode.Ok;
+                res.status(statusCode).json({
+                    statusCode,
+                    message: 'product found',
+                    data: product,
+                    errors: [],
                 });
                 return;
+            } catch (e) {
+                if (e instanceof ProductNotFoundError) {
+                    res.status(HttpStatusCode.NotFound).json({
+                        statusCode: HttpStatusCode.NotFound,
+                        message: `product not found`,
+                        data: null,
+                        errors: [`product #: ${productId} not found`],
+                    });
+                    return;
+                }
+                next(e);
             }
-            const product = await productService.findById(productId);
+        },
+    };
+}
 
-            const statusCode = HttpStatusCode.Ok;
-            res.status(statusCode).json({
-                statusCode,
-                message: 'product found',
-                data: product,
-                errors: [],
-            });
-            return;
-        } catch (e) {
-            if (e instanceof ProductNotFoundError) {
-                res.status(HttpStatusCode.NotFound).json({
-                    statusCode: HttpStatusCode.NotFound,
-                    message: `product not found`,
-                    data: null,
-                    errors: [`product #: ${productId} not found`],
-                });
-                return;
-            }
-            next(e);
-        }
-    },
-};
+export const productController = initializeProductController(productService);
