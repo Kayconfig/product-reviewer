@@ -4,6 +4,25 @@ import { ProductNotFoundError } from './errors/product-not-found.error';
 import { productService } from './product.service';
 
 export const productController = {
+    async findAll(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        try {
+            const products = await productService.findAll();
+            res.status(HttpStatusCode.Ok).json({
+                statusCode: HttpStatusCode.Ok,
+                message: products.length
+                    ? 'products fetched successfully'
+                    : 'no products found',
+                data: { products },
+                errors: [],
+            });
+        } catch (e) {
+            next(e);
+        }
+    },
     async findById(
         req: Request,
         res: Response,

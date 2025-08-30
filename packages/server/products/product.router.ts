@@ -4,6 +4,7 @@ import { productController } from './product.controller';
 
 export const productRouter = Router();
 
-productRouter.get('/:id/reviews', reviewController.findAll);
+productRouter.get('/', productController.findAll);
+productRouter.get('/:id/review', reviewController.findAll);
 productRouter.get('/:id', productController.findById);
-productRouter.post('/:id/reviews/summary', reviewController.summarizeReviews);
+productRouter.post('/:id/review/summary', reviewController.summarizeReviews);

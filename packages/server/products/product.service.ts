@@ -10,4 +10,8 @@ export const productService = {
         }
         return product;
     },
+
+    async findAll(): Promise<Product[]> {
+        return await productRepository.findAll();
+    },
 };
