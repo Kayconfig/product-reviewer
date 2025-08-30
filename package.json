@@ -19,6 +19,7 @@
     },
     "scripts": {
         "prepare": "husky",
-        "dev": "bun run index.ts"
+        "dev": "bun run index.ts",
+        "test": "bun test --forceExit --runInBand"
     }
 }

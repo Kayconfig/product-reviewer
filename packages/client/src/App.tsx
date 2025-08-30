@@ -7,7 +7,7 @@ function App() {
     return (
         <div className="w-screen h-screen">
             <Routes>
-                <Route path="/products" element={<ProductList />} />
+                <Route path="/" element={<ProductList />} />
                 <Route path="/chatbot" element={<ChatBot />} />
                 <Route
                     path="/product/:productId/review"

@@ -20,7 +20,7 @@ function ProductCard({ product }: { product: Product }) {
     return (
         <div
             onClick={navigateToReview}
-            className="flex flex-col gap-1 border outline-gray-600 p-2 cursor-pointer"
+            className="max-w-md rounded-lg shadow-lg bg-white p-6 m-4 flex flex-col gap-1 cursor-pointer"
         >
             <div>{product.name}</div>
             <div className="mb-1">{product.description}</div>
@@ -68,6 +68,7 @@ export default function ProductList() {
 
     return (
         <div className="w-full h-full p-2 flex flex-col gap-2">
+            <h1 className="text-4xl mb-7">Products</h1>
             {products?.map((product) => (
                 <ProductCard key={product.id} product={product} />
             ))}
